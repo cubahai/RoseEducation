@@ -1,0 +1,34 @@
+services:
+  - type: web
+    name: roseeducation
+    runtime: docker
+    repo: https://github.com/cubahai/RoseEducation
+    branch: master
+    plan: free
+    region: singapore
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /
+    autoDeployTrigger: commit
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: DATABASE_URL
+        fromDatabase:
+          name: roseeducation-db
+          property: connectionString
+      - key: SPRING_DATASOURCE_USERNAME
+        fromDatabase:
+          name: roseeducation-db
+          property: user
+      - key: SPRING_DATASOURCE_PASSWORD
+        fromDatabase:
+          name: roseeducation-db
+          property: password
+
+databases:
+  - name: roseeducation-db
+    plan: free
+    region: singapore
+    databaseName: roseeducation
+    user: roseeducation_user
