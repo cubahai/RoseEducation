@@ -6,8 +6,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.EnvironmentPostProcessor;
+import org.springframework.boot.SpringApplication;
 import org.springframework.core.Ordered;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MapPropertySource;
@@ -47,16 +47,44 @@ public class RenderDatabaseUrlEnvironmentPostProcessor implements EnvironmentPos
     }
 
     private static String toJdbcUrl(String url) {
-        if (url.startsWith("jdbc:")) {
-            return url;
-        }
-        if (url.startsWith("postgresql://")) {
-            return "jdbc:" + url;
-        }
-        if (url.startsWith("postgres://")) {
-            return "jdbc:postgresql://" + url.substring("postgres://".length());
+        String uriText = url.startsWith("jdbc:") ? url.substring("jdbc:".length()) : url;
+        if (uriText.startsWith("postgresql://") || uriText.startsWith("postgres://")) {
+            return toJdbcPostgresUrl(uriText);
         }
         return url;
+    }
+
+    private static String toJdbcPostgresUrl(String uriText) {
+        try {
+            URI uri = URI.create(uriText);
+            String host = uri.getHost();
+            if (!hasText(host)) {
+                return fallbackJdbcPostgresUrl(uriText);
+            }
+
+            StringBuilder jdbcUrl = new StringBuilder("jdbc:postgresql://").append(host);
+            if (uri.getPort() != -1) {
+                jdbcUrl.append(":").append(uri.getPort());
+            }
+            jdbcUrl.append(hasText(uri.getRawPath()) ? uri.getRawPath() : "/");
+            if (hasText(uri.getRawQuery())) {
+                jdbcUrl.append("?").append(uri.getRawQuery());
+            }
+            return jdbcUrl.toString();
+        } catch (IllegalArgumentException ex) {
+            return fallbackJdbcPostgresUrl(uriText);
+        }
+    }
+
+    private static String fallbackJdbcPostgresUrl(String uriText) {
+        String sanitized = uriText.replaceFirst("^(postgresql|postgres)://[^/@]+@", "$1://");
+        if (sanitized.startsWith("postgresql://")) {
+            return "jdbc:" + sanitized;
+        }
+        if (sanitized.startsWith("postgres://")) {
+            return "jdbc:postgresql://" + sanitized.substring("postgres://".length());
+        }
+        return uriText;
     }
 
     private static Credentials extractCredentials(String url) {
