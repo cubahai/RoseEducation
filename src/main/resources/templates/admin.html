@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bảng Điều Khiển Admin - RoseEducation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ============================================================
+           RESET + DESIGN TOKENS
+        ============================================================ */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #06060a;
+            --bg-1: #0c0c12;
+            --bg-2: #111119;
+            --bg-3: #16161f;
+            --border: rgba(255,255,255,0.07);
+            --border-md: rgba(255,255,255,0.12);
+            --border-lg: rgba(255,255,255,0.18);
+            --text-1: #f1f5f9;
+            --text-2: #94a3b8;
+            --text-3: #64748b;
+            --orange: #f97316;
+            --orange-2: #fb923c;
+            --teal: #14b8a6;
+            --teal-2: #2dd4bf;
+            --grad: linear-gradient(135deg, #f97316 0%, #14b8a6 100%);
+            --grad-text: linear-gradient(135deg, #fb923c 0%, #2dd4bf 100%);
+            --radius: 14px;
+            --radius-lg: 20px;
+            --radius-xl: 28px;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            overflow-x: hidden;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background:
+                    radial-gradient(circle at 15% 15%, rgba(249,115,22,0.18), transparent 30%),
+                    radial-gradient(circle at 85% 20%, rgba(20,184,166,0.14), transparent 30%),
+                    var(--bg);
+            color: var(--text-1);
+            line-height: 1.6;
+            overflow-x: hidden;
+            padding: 40px 24px;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px);
+            background-size: 32px 32px;
+            mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 35%, transparent 100%);
+            pointer-events: none;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        button, input, textarea {
+            font-family: inherit;
+        }
+
+        /* ============================================================
+           ADMIN PANEL
+        ============================================================ */
+        .admin-container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 680px;
+            margin: 0 auto;
+            padding: 32px;
+            background: rgba(17,17,25,0.9);
+            border: 1px solid var(--border-md);
+            border-radius: var(--radius-xl);
+            box-shadow:
+                    0 0 0 1px rgba(255,255,255,0.03),
+                    0 32px 80px rgba(0,0,0,0.5),
+                    0 0 60px rgba(249,115,22,0.06);
+            backdrop-filter: blur(18px) saturate(160%);
+        }
+
+        .admin-header {
+            margin-bottom: 26px;
+            padding-bottom: 18px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .admin-header h2 {
+            font-size: 26px;
+            font-weight: 900;
+            letter-spacing: -0.8px;
+            background: var(--grad-text);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .admin-header i {
+            margin-right: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-2);
+            margin-bottom: 8px;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 13px 14px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 14px;
+            color: var(--text-1);
+            outline: none;
+            transition: all 0.2s ease;
+            background: rgba(22,22,31,0.9);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: var(--text-3);
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            border-color: rgba(45,212,191,0.45);
+            background: rgba(22,22,31,1);
+            box-shadow: 0 0 0 4px rgba(20,184,166,0.10);
+        }
+
+        .form-group input[type="file"] {
+            padding: 11px;
+            color: var(--text-2);
+            cursor: pointer;
+        }
+
+        .form-group input[type="file"]::file-selector-button {
+            margin-right: 12px;
+            padding: 9px 14px;
+            border: 1px solid rgba(249,115,22,0.25);
+            border-radius: 100px;
+            background: rgba(249,115,22,0.12);
+            color: var(--orange-2);
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 14px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            padding: 13px 18px;
+            border: none;
+            border-radius: 100px;
+            font-size: 14px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .btn-add {
+            background: var(--orange);
+            color: #fff;
+        }
+
+        .btn-add:hover {
+            background: #ea6009;
+            transform: translateY(-1px);
+            box-shadow: 0 0 24px rgba(249,115,22,0.35);
+        }
+
+        .btn-register {
+            background: rgba(20,184,166,0.15);
+            color: var(--teal-2);
+            border: 1px solid rgba(20,184,166,0.25);
+        }
+
+        .btn-register:hover {
+            background: rgba(20,184,166,0.22);
+            transform: translateY(-1px);
+            box-shadow: 0 0 20px rgba(20,184,166,0.2);
+        }
+
+        @media (max-width: 560px) {
+            body {
+                padding: 20px 14px;
+            }
+
+            .admin-container {
+                padding: 26px 20px;
+                border-radius: var(--radius-lg);
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="admin-container">
+    <div class="admin-header">
+        <h2><i class="fa-solid fa-user-tie"></i> Quản Lý Khóa Học (Admin)</h2>
+    </div>
+
+    <form th:action="@{/admin/them-khoa-hoc}" method="POST" enctype="multipart/form-data">
+
+        <div class="form-group">
+            <label for="hinhAnh">Ảnh đại diện khóa học</label>
+            <input type="file" id="hinhAnh" name="hinhAnh" accept="image/*" required>
+        </div>
+
+        <div class="form-group">
+            <label for="tenKhoaHoc">Tên Khóa Học</label>
+            <input type="text" id="tenKhoaHoc" name="tenKhoaHoc" placeholder="VD: Lập trình Java Spring Boot" required>
+        </div>
+
+        <div class="form-group">
+            <label for="hocPhi">Học Phí (VNĐ)</label>
+            <input type="number" id="hocPhi" name="hocPhi" placeholder="VD: 5000000" required>
+        </div>
+
+        <div class="form-group">
+            <label for="ghiChu">Ghi chú</label>
+            <textarea id="ghiChu" name="ghiChu" rows="4" placeholder="Nhập thông tin mô tả chi tiết..."></textarea>
+        </div>
+
+        <div class="action-buttons">
+            <button type="submit" class="btn btn-add"><i class="fa-solid fa-plus"></i> Thêm khóa học</button>
+
+            <a th:href="@{/index}" class="btn btn-register">
+                <i class="fa-solid fa-pen-to-square"></i> Quay về trang chủ
+            </a>
+        </div>
+    </form>
+</div>
+
+</body>
+</html>
