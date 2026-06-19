@@ -3,6 +3,7 @@ package com.example.roseeducation.controller;
 import com.example.roseeducation.dto.CourseViewModel;
 import com.example.roseeducation.entity.Course;
 import com.example.roseeducation.repository.CourseRepository;
+import com.example.roseeducation.config.UploadStorage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,13 +15,10 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.UUID;
 
 @Controller
 public class AdminController {
-
-    private static final Path UPLOAD_DIR = Paths.get(System.getProperty("java.io.tmpdir"), "roseeducation", "uploads");
 
     @Autowired
     private CourseRepository courseRepository;
@@ -44,7 +42,8 @@ public class AdminController {
         String savedImgUrl = null;
 
         if (file != null && !file.isEmpty()) {
-            File uploadFolder = UPLOAD_DIR.toFile();
+            Path uploadDir = UploadStorage.uploadDir();
+            File uploadFolder = uploadDir.toFile();
             if (!uploadFolder.exists()) {
                 uploadFolder.mkdirs();
             }
