@@ -10,14 +10,11 @@ import java.nio.file.Paths;
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
+    private static final Path UPLOAD_DIR = Paths.get(System.getProperty("java.io.tmpdir"), "roseeducation", "uploads");
+
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // Lấy đường dẫn tuyệt đối đến thư mục chứa ảnh trong đồ án của bạn
-        Path uploadDir = Paths.get("src/main/resources/static/uploads");
-        String uploadPath = uploadDir.toFile().getAbsolutePath();
-
-        // Cấu hình: Cứ gọi link /uploads/** trên trình duyệt thì hệ thống sẽ đọc trực tiếp từ ổ đĩa
         registry.addResourceHandler("/uploads/**")
-                .addResourceLocations("file:/" + uploadPath + "/");
+                .addResourceLocations("file:" + UPLOAD_DIR.toAbsolutePath() + "/");
     }
 }
